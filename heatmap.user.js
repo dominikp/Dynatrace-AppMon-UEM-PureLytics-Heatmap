@@ -4,7 +4,7 @@
 // @version     1
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js
 // @require     https://github.com/pa7/heatmap.js/raw/master/build/heatmap.js
-// @resource    hmDialog https://raw.githubusercontent.com/dominikp/Dynatrace-Heatmap/master/heatmap-dialog.html
+// @resource    hmDialog https://raw.githubusercontent.com/Dynatrace/Dynatrace-UEM-PureLytics-Heatmap/master/heatmap-dialog.html
 // @grant       GM_getResourceText
 // ==/UserScript==
 
