@@ -16,7 +16,7 @@ Simply follow the instructions on enabling [PureLytics Stream](https://community
 ## Step 3: Install this plugin in your browser
 This plugin was created for Greasemonkey but should work on any other simliar JavaScript browser extension plugin. 
 Here are the 3 steps to get it running:
-* Install the user script: [heatmap.user.js](https://github.com/Dynatrace/Dynatrace-UEM-PureLytics-Heatmap/blob/master/heatmap.user.js)
+* Install the user script: [heatmap.user.js](https://raw.githubusercontent.com/Dynatrace/Dynatrace-UEM-PureLytics-Heatmap/master/heatmap.user.js)
   * Greasemonkey will automatically ask you to install the script.
 * Ensure that your web server allows CORS requests
 * Change 3 default parameters in the top section of your script
