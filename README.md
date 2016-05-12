@@ -14,10 +14,18 @@ If you do not have Dynatrace simply [Register for Dynatrace Personal License](ht
 Simply follow the instructions on enabling [PureLytics Stream](https://community.dynatrace.com/community/display/DOCDT63/PureLytics+Stream) which will stream UEM data LIVE to your ElasticSearch instance
 
 ## Step 3: Install this plugin in your browser
-This plugin was created for Greasemonkey but should work on any other simliar JavaScript browser extension plugin. Simply create a new User Script plugin - download and copy the content of [heatmap.js](https://github.com/Dynatrace/Dynatrace-UEM-PureLytics-Heatmap/blob/master/heatmap.js) into your custom user script. Now configure the script to be executed on the pages you want to generate the heatmap for.
+This plugin was created for Greasemonkey but should work on any other simliar JavaScript browser extension plugin. 
+Here are the 3 steps to get it running:
+* Install the user script: [heatmap.user.js](https://github.com/Dynatrace/Dynatrace-UEM-PureLytics-Heatmap/blob/master/heatmap.user.js)
+  * Greasemonkey will automatically ask you to install the script.
+* Ensure that your web server allows CORS requests
+* Change 3 default parameters in the top section of your script
+  * Elasticsearch URL: e.g. `https://<yourserver>/dt*/_search`
+  * Username (basic authentication)
+  * Password (basic authentication)
 
 ## Step 4: Configure the script
-Once the plugin is active on your page you will see a popup window with configuration parameters. You need to configure your ElasticSearch API Endpoint, a potential username/password in case you require authentication, the query you want to execute and the timeframe of data you want to look at.
+Once the plugin is active on your page you will see a popup window with configuration parameters. If you have set default values for ElasticSearch URL, username and password then you are ready to go. Otherwise just set these values in the configuration dialog:
 ![](https://github.com/Dynatrace/Dynatrace-UEM-PureLytics-Heatmap/blob/master/images/PluginConfiguration.png)
 
 # Additional use cases
