@@ -1,0 +1,83 @@
+<div id="hmDialog">
+<div id="hmHeader">Dynatrace Heatmap</div>
+<image id="hmIcon" src="https://raw.githubusercontent.com/dominikp/Dynatrace-Heatmap/master/dynatrace-logo.png"></image>
+<image id="hmClose" src="https://raw.githubusercontent.com/dominikp/Dynatrace-Heatmap/master/close.png"></image>
+<div id="hmContent">
+<label class="hmControl">URL</label>
+<input id="hmUrl" class="hmControl" value=""></input>
+<label class="hmControl">Username</label>
+<input id="hmUser" class="hmControl" value=""></input>
+<label class="hmControl">Password</label>
+<input id="hmPass" type=password class="hmControl" value=""></input>
+<label class="hmControl">Predefined query</label>
+<select id="hmQueryShortcuts" class="hmControl"></input>
+  <option value="">All</option>
+</select>
+<label class="hmControl">Query</label>
+<input id="hmQuery" class="hmControl" value='_type:useraction AND data.source.url:\"<window.location>\"'></input>
+<label class="hmControl">Last x days</label>
+<input id="hmTimeframe" type=number class="hmControl" value=""></input>
+<label>Highlight only visible links </label>
+<input id="hmVisible" type=checkbox></input>
+<input id="hmGenerateHeatmap" class="hmButton" type=button value="Generate heatmap"></input>
+</div>
+<style>
+    #hmDialog {
+        position:fixed !important; 
+        width:300px !important; 
+        right:20px !important; 
+        bottom:20px !important; 
+        box-shadow:3px 3px 9px 0px rgba(0,0,0,0.75) !important;
+        font-family:Arial !important;
+        font-size:14px !important;
+        z-index: 999999;
+    }
+    #hmHeader {
+       padding-left:52px !important; 
+       background:#101010 !important; 
+       color:#FFFFFF !important;
+       height:48px !important;
+       line-height:48px !important;
+       vertical-align:middle !important;
+    }
+    #hmIcon {
+        position:absolute !important; 
+        top:0px !important; 
+        left:0px !important; 
+        padding:8px !important; 
+        width:32px !important; 
+        height:32px !important;
+    }
+    #hmClose {
+        position:absolute !important; 
+        top:0px !important; 
+        right:0px !important; 
+        padding:8px !important; 
+        width:32px !important; 
+        height:32px !important;
+    }
+    #hmContent {
+        background:#00A6FA !important; 
+        color:#FFFFFF !important; 
+        text-align:left !important; 
+        padding:8px !important;
+    }
+    .hmControl {
+        width:100% !important;
+        padding:0px; !important;
+    }
+    input.hmControl,
+    select.hmControl {
+        background-color:#FFFFFF !important;
+        border:none !important;
+    }
+    .hmButton {
+        width:100% !important;
+        background-color:#5D9B33 !important;
+        color:#FFFFFF !important;
+        border:none !important;
+        padding:8px !important;
+        margin-top:1em !important;
+    }
+</style>
+</div>
