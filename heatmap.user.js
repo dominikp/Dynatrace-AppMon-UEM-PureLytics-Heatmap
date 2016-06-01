@@ -168,7 +168,7 @@ function downloadClickData(searchUrl, user, pass, query, timeframeDays, showHidd
 }
 
 // DOM
-$("body").append("<image id='heatmap-spinner' src='https://raw.githubusercontent.com/dominikp/Dynatrace-Heatmap/master/loader.gif' style='display:none; position:fixed; left:45%; top: 45%'; z-index:1000000000;'></image>");
+$("body").append("<image id='heatmap-spinner' src='https://raw.githubusercontent.com/Dynatrace/Dynatrace-UEM-PureLytics-Heatmap/master/loader.gif' style='display:none; position:fixed; left:45%; top: 45%'; z-index:1000000000;'></image>");
 $("body").append("<div id='heatmap-container' style='display:none;position:absolute;left:0;top:0;width:100%;height:100%;z-index:10000000'></div>");
 $("body").append("<div id='heatmap-statistics' style='display:none;position:absolute;left:10px;bottom:10px;background-color:#00A6FA;box-shadow:3px 3px 9px 0px rgba(0,0,0,0.75);color:#FFF;font-size:12px;padding:8px;z-index:10000000'>Statistics go here...</div>");
 $("body").append(GM_getResourceText("hmDialog"));
