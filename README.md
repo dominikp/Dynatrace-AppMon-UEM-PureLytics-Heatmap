@@ -18,7 +18,7 @@ This plugin was created for Greasemonkey but should work on any other simliar Ja
 Here are the 3 steps to get it running:
 * Install the user script: [heatmap.user.js](https://raw.githubusercontent.com/Dynatrace/Dynatrace-UEM-PureLytics-Heatmap/master/heatmap.user.js)
   * Greasemonkey will automatically ask you to install the script.
-* Ensure that your web server allows CORS requests
+* Ensure that your Elastic search cluster allows CORS requests
 * Change 3 default parameters in the top section of your script
   * Elasticsearch URL: e.g. `https://<yourserver>/dt*/_search`
   * Username (basic authentication)
@@ -27,6 +27,9 @@ Here are the 3 steps to get it running:
 ## Step 4: Configure the script
 Once the plugin is active on your page you will see a popup window with configuration parameters. If you have set default values for ElasticSearch URL, username and password then you are ready to go. Otherwise just set these values in the configuration dialog:
 ![](https://github.com/Dynatrace/Dynatrace-UEM-PureLytics-Heatmap/blob/master/images/PluginConfiguration.png)
+
+## Step 5: Run it
+Navigate the browser to your web application that is monitored with AppMon UEM. In the popup window select "Generate heatmap". The heatmap will be rendered directly on your page.
 
 # Additional use cases
 Here are some additonal screenshot of use cases we also covered in our blog: http://apmblog.dynatrace.com
