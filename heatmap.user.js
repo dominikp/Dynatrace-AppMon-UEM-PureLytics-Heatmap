@@ -5,6 +5,8 @@
 // @require     https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js
 // @require     https://github.com/pa7/heatmap.js/raw/master/build/heatmap.js
 // @resource    hmDialog https://raw.githubusercontent.com/Dynatrace/Dynatrace-UEM-PureLytics-Heatmap/master/heatmap-dialog.html
+// @connect     *
+// @grant       GM_xmlhttpRequest
 // @grant       GM_getResourceText
 // ==/UserScript==
 
@@ -13,9 +15,9 @@ var hmUrl = "XXX";
 var hmUser = "XXX";
 var hmPass = "XXX";
 var hmTimeframe = 14;
+var bucketSize = 1; //optimization for creating points in groups instead of 1 at a time
+var debugLog = 0; // Set to 1 to enable console logs, 0 to diable logging
 var allClicks = "_type:useraction AND data.source.url: \\\"" + window.location + "\\\"";
-
-var Base64={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",encode:function(e){var t="";var n,r,i,s,o,u,a;var f=0;e=Base64._utf8_encode(e);while(f<e.length){n=e.charCodeAt(f++);r=e.charCodeAt(f++);i=e.charCodeAt(f++);s=n>>2;o=(n&3)<<4|r>>4;u=(r&15)<<2|i>>6;a=i&63;if(isNaN(r)){u=a=64}else if(isNaN(i)){a=64}t=t+this._keyStr.charAt(s)+this._keyStr.charAt(o)+this._keyStr.charAt(u)+this._keyStr.charAt(a)}return t},decode:function(e){var t="";var n,r,i;var s,o,u,a;var f=0;e=e.replace(/[^A-Za-z0-9+/=]/g,"");while(f<e.length){s=this._keyStr.indexOf(e.charAt(f++));o=this._keyStr.indexOf(e.charAt(f++));u=this._keyStr.indexOf(e.charAt(f++));a=this._keyStr.indexOf(e.charAt(f++));n=s<<2|o>>4;r=(o&15)<<4|u>>2;i=(u&3)<<6|a;t=t+String.fromCharCode(n);if(u!=64){t=t+String.fromCharCode(r)}if(a!=64){t=t+String.fromCharCode(i)}}t=Base64._utf8_decode(t);return t},_utf8_encode:function(e){e=e.replace(/rn/g,"n");var t="";for(var n=0;n<e.length;n++){var r=e.charCodeAt(n);if(r<128){t+=String.fromCharCode(r)}else if(r>127&&r<2048){t+=String.fromCharCode(r>>6|192);t+=String.fromCharCode(r&63|128)}else{t+=String.fromCharCode(r>>12|224);t+=String.fromCharCode(r>>6&63|128);t+=String.fromCharCode(r&63|128)}}return t},_utf8_decode:function(e){var t="";var n=0;var r=c1=c2=0;while(n<e.length){r=e.charCodeAt(n);if(r<128){t+=String.fromCharCode(r);n++}else if(r>191&&r<224){c2=e.charCodeAt(n+1);t+=String.fromCharCode((r&31)<<6|c2&63);n+=2}else{c2=e.charCodeAt(n+1);c3=e.charCodeAt(n+2);t+=String.fromCharCode((r&15)<<12|(c2&63)<<6|c3&63);n+=3}}return t}}
 
 function createJSONQuery(query, durationms) {
   return '{\
@@ -56,10 +58,8 @@ function createJSONQuery(query, durationms) {
 }';
 }
 
-function getAuthorizationHeader(user, pass) {
-  var tok = user + ':' + pass;
-  var hash = Base64.encode(tok);
-  return "Basic " + hash;
+function dt_log(msg) {
+  if (debugLog) console.log(msg);
 }
 
 function drawHeatmap(links, showHidden) {
@@ -76,30 +76,44 @@ function drawHeatmap(links, showHidden) {
     for (i in links) {
       var currentLink = i.split("'").join("\\'"); // escape "'" otherwise the selector wont work
       var elems = [];
+      dt_log("Current Link: " + currentLink);
       try {
         elems = $("a:contains('" + currentLink + "'), input[value='" + currentLink + "']");
       } catch (e) {
         console.log(e);
       }
+      dt_log("-- After contains");
       if (elems.length == 0) {
         $("#heatmap-statistics").append("Could not find " + i + " (" + links[i] + ")<br>");
+        //continue; 
       }
+      dt_log("-- Update Stats");
       elems.each(function (index, elem) {
+        dt_log("Elem offset top: " + $(elem).offset().top + " left: " + $(elem).offset().left);
+        
+    
         var visible = $(elem).is(":visible"); 
+        dt_log("-- Checking visibility: " + elem);
         var offsetVisible = ($(elem).offsetParent().width() > $(elem).offset().left && $(elem).offsetParent().height() > $(elem).offset().top);
-        if (showHidden || (visible && offsetVisible)) for (j = 0; j < links[i]; ++j) {
+        dt_log("-- Checking offset visibility");
+        if (showHidden || (visible && offsetVisible)) {
+  
+            dt_log("-- In if statement: " + links[i]);
             var val = links[i] + 800; // add an offset to make all links visible
-            max = Math.max(max, val);
-      
+            max = Math.max(max, val);  
+          for (j = 0; j < links[i]; j=j+bucketSize) {  
             var point = {
               x: $(elem).offset().left + Math.floor(Math.random() *  $(elem).width()),
               y: $(elem).offset().top + Math.floor(Math.random() *  $(elem).height()),
               value: val
             };
-            points.push(point);
+            for (k = 0; k<bucketSize; k++ ) {
+              points.push(point);
+            }
+          }
         }
       });
-      
+      dt_log("finished Heatmap");
     }
     // heatmap data format
     var data = { 
@@ -108,6 +122,7 @@ function drawHeatmap(links, showHidden) {
     };
     // if you have a set of datapoints always use setData instead of addData
     // for data initialization
+    dt_log("-- Before setData");
     heatmapInstance.setData(data);
     $('#heatmap-container').css("position", "absolute");
     $('.heatmap-canvas').css("opacity", "0.5");
@@ -125,45 +140,60 @@ function downloadClickData(searchUrl, user, pass, query, timeframeDays, showHidd
   $("#heatmap-container").empty().show();
   $("#heatmap-statistics").empty().show();  
   $("#hmDialog").hide();
+  //alert ("Starting request");
   var LINK_REGEX = /click on \"(.*)\"/g;
-  $.ajax({
+  GM_xmlhttpRequest( {
+    method: "POST",
     url: searchUrl,
-    type: "post",
-    xhrFields: { withCredentials: true },
-    data: createJSONQuery(query, 1000*60*60*24*timeframeDays), // last 2 weeks
-    dataType: "json",
-    beforeSend: function(xhr) { 
-      xhr.setRequestHeader("Authorization", getAuthorizationHeader(user, pass));
-    }
-  }).done(function(data) {
-    var links = {};
-    var clicks = 0;
-    var otherActions = 0;
-    var topClick = "";
-    var topClickCount = 0;
-    for (i=0; i < data.aggregations.NAME.buckets.length; ++i) {
-      var link = LINK_REGEX.exec(data.aggregations.NAME.buckets[i].key);
-      var count = data.aggregations.NAME.buckets[i].doc_count;
-      if (link) {
-        clicks+=count;
-        if (topClickCount < count) {
-          topClickCount = count;
-          topClick = link[1];
+    user: user,
+    password: pass,
+    data: createJSONQuery(query, 1000*60*60*24*timeframeDays), 
+    headers: {
+      "kbn-version": "4.5.1", // set kibana version - an apache proxy change can get rid of this
+      "Content-Type": "text/json"
+    },
+    onload: function (response) {
+      var data = JSON.parse(response.responseText);
+      var links = {};
+      var clicks = 0;
+      var otherActions = 0;
+      var topClick = "";
+      var topClickCount = 0;
+      for (i=0; i < data.aggregations.NAME.buckets.length; ++i) {
+        var link = LINK_REGEX.exec(data.aggregations.NAME.buckets[i].key);
+        var count = data.aggregations.NAME.buckets[i].doc_count;
+        if (link) {
+          clicks+=count;
+          if (topClickCount < count) {
+            topClickCount = count;
+            topClick = link[1];
+          }
+          links[link[1]] = count;
+        } else {
+          otherActions += count;
         }
-        links[link[1]] = count;
-      } else {
-        otherActions += count;
       }
+      $("#heatmap-statistics").append("Downloaded top " + data.aggregations.NAME.buckets.length + " user actions<br>");
+      $("#heatmap-statistics").append("=> " + clicks + " clicks<br>");
+      $("#heatmap-statistics").append("=> " + otherActions + " actions (page loads, ...)<br>");
+      $("#heatmap-statistics").append("Top click: " + topClick + "(" + topClickCount + ")<br>");
+      dt_log("Before Drawing Heatmap: " + JSON.stringify(links));
+      drawHeatmap(links, showHidden);
+      $("#heatmap-spinner").hide();
+      
+    },
+    onerror: function (response) {
+      dt_log("Error: " + response);
+      $("#heatmap-spinner").hide();
+    },
+    onabort: function (response) {
+      dt_log("Aborted: " + response);
+      $("#heatmap-spinner").hide();
+    },
+    ontimeout: function (response) {
+      dt_log("Timeout: " + response);
+      $("#heatmap-spinner").hide();
     }
-    $("#heatmap-statistics").append("Downloaded top " + data.aggregations.NAME.buckets.length + " user actions<br>");
-    $("#heatmap-statistics").append("=> " + clicks + " clicks<br>");
-    $("#heatmap-statistics").append("=> " + otherActions + " actions (page loads, ...)<br>");
-    $("#heatmap-statistics").append("Top click: " + topClick + "(" + topClickCount + ")<br>");
-    drawHeatmap(links, showHidden);
-  }).fail(function(xhr, status, error) {
-    $("#heatmap-statistics").append("Request failed: " + error + "<br>");
-  }).always(function() {
-    $("#heatmap-spinner").hide();
   });
 }
 
