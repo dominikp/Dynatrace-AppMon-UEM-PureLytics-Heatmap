@@ -1,6 +1,8 @@
 # Dynatrace-UEM-PureLytics-Heatmap
 JavaScript Browser Extension to visualize UEM User Action Clicks as Heatmap. To be used with Browser Extensions such as [Greasemonkey](http://www.greasespot.net/)
 
+Also make sure to check out more information about this and other extensions on our [Dynatrace Community Portal](https://community.dynatrace.com/community/display/DL/UEM+PureLytics+Heatmap).
+
 ## What this plugin can do?
 We are using Dynatrace UEM to monitor our own web sites such as our [about:performance blog](http://apmblog.dynatrace.com). Using [Dynatrace PureLytics Stream](https://community.dynatrace.com/community/display/DOCDT63/PureLytics+Stream) in combination with ElasticSearch we can pull aggregated UEM Data such as "Clicks on Links on a certain page" and visualize these clicks as a heatmap in your browser!
 ![](https://github.com/Dynatrace/Dynatrace-UEM-PureLytics-Heatmap/blob/master/images/HeatmapView.png)
