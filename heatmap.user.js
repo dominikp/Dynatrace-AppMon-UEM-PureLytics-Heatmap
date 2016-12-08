@@ -20,31 +20,24 @@ var debugLog = 0; // Set to 1 to enable console logs, 0 to diable logging
 var allClicks = "_type:useraction AND data.source.url: \\\"" + window.location + "\\\"";
 
 function createJSONQuery(query, durationms) {
-  return '{\
+  dt_log("createJSONQuery");
+  data = '{\
   "query": {\
-    "filtered": {\
-      "query": {\
-        "query_string": {\
-          "query": "' + query + '",\
-          "analyze_wildcard": true\
-        }\
-      },\
-      "filter": {\
-        "bool": {\
-          "must": [\
-            {\
-              "range": {\
+     "bool": {\
+        "must": [\
+            { "range": {\
                 "data.startTime": {\
                   "gte": ' + (new Date().getTime() - durationms) + ',\
                   "lte": ' + new Date().getTime() + '\
                 }\
               }\
-            }\
-          ],\
-          "must_not": []\
-        }\
-      }\
-    }\
+           },\
+           { "query_string": {\
+               "query": "' + query + '",\
+               "analyze_wildcard": true }\
+           }\
+       ]\
+     }\
   },\
   "size": 0,\
   "aggs": {\
@@ -56,7 +49,10 @@ function createJSONQuery(query, durationms) {
     }\
   }\
 }';
+  dt_log(data);
+  return data;
 }
+
 
 function dt_log(msg) {
   if (debugLog) console.log(msg);
@@ -199,7 +195,7 @@ function downloadClickData(searchUrl, user, pass, query, timeframeDays, showHidd
 
 // DOM
 $("body").append("<image id='heatmap-spinner' src='https://raw.githubusercontent.com/Dynatrace/Dynatrace-UEM-PureLytics-Heatmap/master/loader.gif' style='display:none; position:fixed; left:45%; top: 45%'; z-index:1000000000;'></image>");
-$("body").append("<div id='heatmap-container' style='display:none;position:absolute;left:0;top:0;width:100%;height:100%;z-index:10000000'></div>");
+$("body").append("<div id='heatmap-container' style='display:none;position:absolute;left:0;top:0;width:" + Math.max($(document).width(), $(window).width()) + "px;height:" + Math.max($(document).height(), $(window).height()) + "px;z-index:10000000'></div>");
 $("body").append("<div id='heatmap-statistics' style='display:none;position:absolute;left:10px;bottom:10px;background-color:#00A6FA;box-shadow:3px 3px 9px 0px rgba(0,0,0,0.75);color:#FFF;font-size:12px;padding:8px;z-index:10000000'>Statistics go here...</div>");
 $("body").append(GM_getResourceText("hmDialog"));
 
