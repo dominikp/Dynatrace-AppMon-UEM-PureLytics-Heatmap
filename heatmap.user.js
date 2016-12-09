@@ -11,40 +11,33 @@
 // ==/UserScript==
 
 // change the defaults here:
-var hmUrl = "XXX";
-var hmUser = "XXX";
-var hmPass = "XXX";
+var hmUrl = "XX";
+var hmUser = "XX";
+var hmPass = "XX";
 var hmTimeframe = 14;
 var bucketSize = 1; //optimization for creating points in groups instead of 1 at a time
 var debugLog = 0; // Set to 1 to enable console logs, 0 to diable logging
 var allClicks = "_type:useraction AND data.source.url: \\\"" + window.location + "\\\"";
 
 function createJSONQuery(query, durationms) {
-  return '{\
+  dt_log("createJSONQuery");
+  data = '{\
   "query": {\
-    "filtered": {\
-      "query": {\
-        "query_string": {\
-          "query": "' + query + '",\
-          "analyze_wildcard": true\
-        }\
-      },\
-      "filter": {\
-        "bool": {\
-          "must": [\
-            {\
-              "range": {\
+     "bool": {\
+        "must": [\
+            { "range": {\
                 "data.startTime": {\
                   "gte": ' + (new Date().getTime() - durationms) + ',\
                   "lte": ' + new Date().getTime() + '\
                 }\
               }\
-            }\
-          ],\
-          "must_not": []\
-        }\
-      }\
-    }\
+           },\
+           { "query_string": {\
+               "query": "' + query + '",\
+               "analyze_wildcard": true }\
+           }\
+       ]\
+     }\
   },\
   "size": 0,\
   "aggs": {\
@@ -56,6 +49,8 @@ function createJSONQuery(query, durationms) {
     }\
   }\
 }';
+  dt_log(data);
+  return data;
 }
 
 function dt_log(msg) {
@@ -149,7 +144,7 @@ function downloadClickData(searchUrl, user, pass, query, timeframeDays, showHidd
     password: pass,
     data: createJSONQuery(query, 1000*60*60*24*timeframeDays), 
     headers: {
-      "kbn-version": "4.5.1", // set kibana version - an apache proxy change can get rid of this
+      "kbn-version": "5.0", // set kibana version - an apache proxy change can get rid of this
       "Content-Type": "text/json"
     },
     onload: function (response) {
@@ -199,8 +194,8 @@ function downloadClickData(searchUrl, user, pass, query, timeframeDays, showHidd
 
 // DOM
 $("body").append("<image id='heatmap-spinner' src='https://raw.githubusercontent.com/Dynatrace/Dynatrace-UEM-PureLytics-Heatmap/master/loader.gif' style='display:none; position:fixed; left:45%; top: 45%'; z-index:1000000000;'></image>");
-$("body").append("<div id='heatmap-container' style='display:none;position:absolute;left:0;top:0;width:100%;height:100%;z-index:10000000'></div>");
-$("body").append("<div id='heatmap-statistics' style='display:none;position:absolute;left:10px;bottom:10px;background-color:#00A6FA;box-shadow:3px 3px 9px 0px rgba(0,0,0,0.75);color:#FFF;font-size:12px;padding:8px;z-index:10000000'>Statistics go here...</div>");
+$("body").append("<div id='heatmap-container' style='display:none;position:absolute;left:0;top:0;width:" + Math.max($(document).width(), $(window).width()) + "px;height:" + Math.max($(document).height(), $(window).height()) + "px;z-index:10000000'></div>");
+$("body").append("<div id='heatmap-statistics' style='display:none;position:fixed;left:10px;bottom:10px;background-color:#00A6FA;box-shadow:3px 3px 9px 0px rgba(0,0,0,0.75);color:#FFF;font-size:12px;padding:8px;z-index:10000000'>Statistics go here...</div>");
 $("body").append(GM_getResourceText("hmDialog"));
 
 // Event handlers
@@ -234,6 +229,9 @@ $("#hmUser").val(hmUser);
 $("#hmPass").val(hmPass);
 $("#hmTimeframe").val(hmTimeframe);
 $("#hmQuery").val(allClicks);
+$("#hmQueryShortcuts").append("<option value='AND data.clientDetails.osFamily:\\\"iOS\\\"'>iOS</option>");
+$("#hmQueryShortcuts").append('<option value="AND data.clientDetails.osFamily:Android">Android</option>');
+$("#hmQueryShortcuts").append('<option value="AND data.clientDetails.osFamily:Linux">Linux</option>');
 $("#hmQueryShortcuts").append('<option value="AND data.clientDetails.osFamily:Windows">Windows</option>');
 $("#hmQueryShortcuts").append("<option value='AND data.clientDetails.osFamily:\\\"OS X\\\"'>OS X</option>");
 $("#hmQueryShortcuts").append('<option value="AND _exists_:data.visitTag">Logged in</option>');
@@ -243,3 +241,4 @@ $("#hmQueryShortcuts").append('<option value="AND data.userExperience:tolerating
 $("#hmQueryShortcuts").append('<option value="AND data.userExperience:frustrated">Frustrated</option>');
 $("#hmQueryShortcuts").append("<option value='AND data.location.continent:\\\"North America\\\"'>North America</option>");
 $("#hmQueryShortcuts").append('<option value="AND data.location.continent:Europe">Europe</option>');
+
