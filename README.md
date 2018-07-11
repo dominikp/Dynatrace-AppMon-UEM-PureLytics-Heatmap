@@ -18,7 +18,7 @@ Simply follow the instructions on enabling [PureLytics Stream](https://community
 ## Step 3: Install this plugin in your browser
 This plugin was created for Tampermonkey but should work on any other simliar JavaScript browser extension plugin. 
 Here are the 3 steps to get it running:
-* Install the user script: [heatmap.user.js](https://github.com/AlonsoDeCosio/Dynatrace-UEM-PureLytics-Heatmap/releases/download/v1.0/heatmap.user.js)
+* Install the user script: [heatmap.user.js](https://github.com/Dynatrace/Dynatrace-UEM-PureLytics-Heatmap/releases/download/v1.0/heatmap.user.js)
   * Tampermonkey will automatically ask you to install the script.
 * Ensure that your Elastic search cluster allows CORS requests
 * Set the URL where you want to run this script to the `@match` variable inside the `==/UserScript==` section.
