@@ -1,12 +1,12 @@
 # Dynatrace-UEM-PureLytics-Heatmap
-JavaScript Browser Extension to visualize UEM User Action Clicks as Heatmap. To be used with Browser Extensions such as [Greasemonkey](http://www.greasespot.net/)
+JavaScript Browser Extension to visualize UEM User Action Clicks as Heatmap. To be used with Browser Extensions such as [Tampermonkey](https://tampermonkey.net/)
 
 Also make sure to check out more information about this and other extensions on our [Dynatrace Community Portal](https://community.dynatrace.com/community/display/DL/UEM+PureLytics+Heatmap).
 
 ## What this plugin can do?
 We are using Dynatrace UEM to monitor our own web sites such as our [about:performance blog](http://apmblog.dynatrace.com/2016/05/26/using-heat-maps-to-understanding-how-your-users-tick/). Using [Dynatrace PureLytics Stream](https://community.dynatrace.com/community/display/DOCDT63/PureLytics+Stream) in combination with ElasticSearch we can pull aggregated UEM Data such as "Clicks on Links on a certain page" and visualize these clicks as a heatmap in your browser!
 ![](https://github.com/Dynatrace/Dynatrace-UEM-PureLytics-Heatmap/blob/master/images/HeatmapView.png)
-This plugin is simply a JavaScript Browser Extension you can run in e.g: Greasemonkey. It will pull aggregated Dynatrace UEM data from ElasticSearch and visualizes it as a click heatmap.
+This plugin is simply a JavaScript Browser Extension you can run in e.g: Tampermonkey. It will pull aggregated Dynatrace UEM data from ElasticSearch and visualizes it as a click heatmap.
 
 # How to get it setup?
 ## Step 1: Get Dynatrace installed
@@ -16,11 +16,12 @@ If you do not have Dynatrace simply [Register for Dynatrace Personal License](ht
 Simply follow the instructions on enabling [PureLytics Stream](https://community.dynatrace.com/community/display/DOCDT63/PureLytics+Stream) which will stream UEM data LIVE to your ElasticSearch instance
 
 ## Step 3: Install this plugin in your browser
-This plugin was created for Greasemonkey but should work on any other simliar JavaScript browser extension plugin. 
+This plugin was created for Tampermonkey but should work on any other simliar JavaScript browser extension plugin. 
 Here are the 3 steps to get it running:
 * Install the user script: [heatmap.user.js](https://github.com/Dynatrace/Dynatrace-UEM-PureLytics-Heatmap/releases/download/v1.0/heatmap.user.js)
-  * Greasemonkey will automatically ask you to install the script.
+  * Tampermonkey will automatically ask you to install the script.
 * Ensure that your Elastic search cluster allows CORS requests
+* Set the URL where you want to run this script to the `@match` variable inside the `==/UserScript==` section.
 * Change 3 default parameters in the top section of your script
   * Elasticsearch URL: e.g. `https://<yourserver>/dt*/_search`
   * Username (basic authentication)
