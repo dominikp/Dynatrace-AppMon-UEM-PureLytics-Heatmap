@@ -1,14 +1,19 @@
 // ==UserScript==
-// @name        Dynatrace Heatmap
-// @namespace   Dynatrace
-// @version     1
-// @require     https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js
-// @require     https://github.com/pa7/heatmap.js/raw/master/build/heatmap.js
-// @resource    hmDialog https://raw.githubusercontent.com/Dynatrace/Dynatrace-UEM-PureLytics-Heatmap/master/heatmap-dialog.html
+// @name         Dynatrace Heatmap
+// @namespace    Dynatrace
+// @version      1
+// @description  Heat map for Dynatrace
+// @author       You
+// @require      https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js
+// @require      https://github.com/pa7/heatmap.js/raw/master/build/heatmap.js
+// @resource     hmDialog https://raw.githubusercontent.com/Dynatrace/Dynatrace-UEM-PureLytics-Heatmap/master/heatmap-dialog.html
+// @grant        GM.xmlHttpRequest
+// @grant        GM_getResourceText
 // @connect     *
-// @grant       GM_xmlhttpRequest
-// @grant       GM_getResourceText
+//Add the URL of the website where you want to display the Heatmap
+// @match        <URL of website>
 // ==/UserScript==
+
 
 // change the defaults here:
 var hmUrl = "XX";
@@ -21,34 +26,34 @@ var allClicks = "_type:useraction AND data.source.url: \\\"" + window.location +
 
 function createJSONQuery(query, durationms) {
   dt_log("createJSONQuery");
-  data = '{\
-  "query": {\
-     "bool": {\
-        "must": [\
-            { "range": {\
-                "data.startTime": {\
-                  "gte": ' + (new Date().getTime() - durationms) + ',\
-                  "lte": ' + new Date().getTime() + '\
+  var data = '{\
+    "query": {\
+       "bool": {\
+          "must": [\
+              { "range": {\
+                  "data.startTime": {\
+                    "gte": ' + (new Date().getTime() - durationms) + ',\
+                    "lte": ' + new Date().getTime() + '\
+                  }\
                 }\
-              }\
-           },\
-           { "query_string": {\
-               "query": "' + query + '",\
-               "analyze_wildcard": true }\
-           }\
-       ]\
-     }\
-  },\
-  "size": 0,\
-  "aggs": {\
-    "NAME": {\
-      "terms": {\
-        "field": "data.prettyName",\
-        "size": 200\
+             },\
+             { "query_string": {\
+                 "query": "' + query + '",\
+                 "analyze_wildcard": true }\
+             }\
+         ]\
+       }\
+    },\
+    "size": 0,\
+    "aggs": {\
+      "NAME": {\
+        "terms": {\
+          "field": "data.prettyName",\
+          "size": 200\
+        }\
       }\
     }\
-  }\
-}';
+  }';
   dt_log(data);
   return data;
 }
@@ -68,7 +73,7 @@ function drawHeatmap(links, showHidden) {
     var points = [];
     var max = 0;
 
-    for (i in links) {
+    for (var i in links) {
       var currentLink = i.split("'").join("\\'"); // escape "'" otherwise the selector wont work
       var elems = [];
       dt_log("Current Link: " + currentLink);
@@ -80,40 +85,40 @@ function drawHeatmap(links, showHidden) {
       dt_log("-- After contains");
       if (elems.length == 0) {
         $("#heatmap-statistics").append("Could not find " + i + " (" + links[i] + ")<br>");
-        //continue; 
+        //continue;
       }
       dt_log("-- Update Stats");
       elems.each(function (index, elem) {
         dt_log("Elem offset top: " + $(elem).offset().top + " left: " + $(elem).offset().left);
-        
-    
-        var visible = $(elem).is(":visible"); 
+
+        var visible = $(elem).is(":visible");
         dt_log("-- Checking visibility: " + elem);
         var offsetVisible = ($(elem).offsetParent().width() > $(elem).offset().left && $(elem).offsetParent().height() > $(elem).offset().top);
         dt_log("-- Checking offset visibility");
         if (showHidden || (visible && offsetVisible)) {
-  
+
             dt_log("-- In if statement: " + links[i]);
             var val = links[i] + 800; // add an offset to make all links visible
-            max = Math.max(max, val);  
-          for (j = 0; j < links[i]; j=j+bucketSize) {  
+            max = Math.max(max, val);
+          for (var j = 0; j < links[i]; j=j+bucketSize) {
             var point = {
               x: $(elem).offset().left + Math.floor(Math.random() *  $(elem).width()),
               y: $(elem).offset().top + Math.floor(Math.random() *  $(elem).height()),
               value: val
             };
-            for (k = 0; k<bucketSize; k++ ) {
+            for (var k = 0; k<bucketSize; k++ ) {
               points.push(point);
             }
           }
+            console.log(point);
         }
       });
       dt_log("finished Heatmap");
     }
     // heatmap data format
-    var data = { 
-      max: max, 
-      data: points 
+    var data = {
+      max: max,
+      data: points
     };
     // if you have a set of datapoints always use setData instead of addData
     // for data initialization
@@ -133,16 +138,16 @@ $.expr[":"].contains = $.expr.createPseudo(function(arg) {
 function downloadClickData(searchUrl, user, pass, query, timeframeDays, showHidden) {
   $("#heatmap-spinner").fadeIn(200).show();
   $("#heatmap-container").empty().show();
-  $("#heatmap-statistics").empty().show();  
+  $("#heatmap-statistics").empty().show();
   $("#hmDialog").hide();
   //alert ("Starting request");
   var LINK_REGEX = /click on \"(.*)\"/g;
-  GM_xmlhttpRequest( {
+  GM.xmlHttpRequest( {
     method: "POST",
     url: searchUrl,
     user: user,
     password: pass,
-    data: createJSONQuery(query, 1000*60*60*24*timeframeDays), 
+    data: createJSONQuery(query, 1000*60*60*24*timeframeDays),
     headers: {
       "kbn-version": "5.0", // set kibana version - an apache proxy change can get rid of this
       "Content-Type": "text/json"
@@ -154,7 +159,7 @@ function downloadClickData(searchUrl, user, pass, query, timeframeDays, showHidd
       var otherActions = 0;
       var topClick = "";
       var topClickCount = 0;
-      for (i=0; i < data.aggregations.NAME.buckets.length; ++i) {
+      for (var i=0; i < data.aggregations.NAME.buckets.length; ++i) {
         var link = LINK_REGEX.exec(data.aggregations.NAME.buckets[i].key);
         var count = data.aggregations.NAME.buckets[i].doc_count;
         if (link) {
@@ -175,7 +180,6 @@ function downloadClickData(searchUrl, user, pass, query, timeframeDays, showHidd
       dt_log("Before Drawing Heatmap: " + JSON.stringify(links));
       drawHeatmap(links, showHidden);
       $("#heatmap-spinner").hide();
-      
     },
     onerror: function (response) {
       dt_log("Error: " + response);
@@ -241,4 +245,3 @@ $("#hmQueryShortcuts").append('<option value="AND data.userExperience:tolerating
 $("#hmQueryShortcuts").append('<option value="AND data.userExperience:frustrated">Frustrated</option>');
 $("#hmQueryShortcuts").append("<option value='AND data.location.continent:\\\"North America\\\"'>North America</option>");
 $("#hmQueryShortcuts").append('<option value="AND data.location.continent:Europe">Europe</option>');
-
